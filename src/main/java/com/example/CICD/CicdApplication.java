@@ -15,6 +15,12 @@ public class CicdApplication {
 		return " ci cd with github actions";
 	}
 
+    @GetMapping
+	public String status(){
+		return "active";
+	}
+
+
 
 	@GetMapping("/check")
 	public String verify(){
