@@ -16,6 +16,16 @@ public class CicdApplication {
 	}
 
 
+	@GetMapping("/check")
+	public String verify(){
+		return "hello world";
+	}
+
+
+
+
+
+
 	public static void main(String[] args) {
 		SpringApplication.run(CicdApplication.class, args);
 	}
