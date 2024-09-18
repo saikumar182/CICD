@@ -28,7 +28,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
-        run: mvn clean install
+
+        uses: webfactory/ssh-agent@v0.5.3
+
+        with:
+          ssh-private-key: ${{ secrets.CICD_PRIVATE_SSH_KEY }}
+#        run: mvn clean install
 
 
 #      - name: Build & push Docker image
@@ -40,15 +45,18 @@ jobs:
 #          dockerfile: Dockerfile
 #          username: ${{ secrets.DOCKER_USERNAME }}
 #          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build & push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v4
-        with:
-          image: saikumar781/springbootcicd
-          tags: latest
-          registry: docker.io
-          dockerfile: Dockerfile
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          build-args:
-            --cache-from=type=gha
+
+
+        run:
+         ssh -T -o StrictHostKeyChecking=no @34.133.22.178 -p 22 \
+          "cd ~/springbootcicd/ && \
+          docker stop springbootcicd && \
+          docker rm springbootcicd && \
+          docker rmi springbootcicd:latest && \
+          docker stop \$(docker ps -a -q) && \
+          git checkout master && \
+          git pull && \
+          docker build -t springbootcicd:latest -f Dockerfile . && \
+          docker run -p 8080:8080 -d --name springbootcicd springbootcicd:latest && \
+          docker start \$(docker ps -a -q)"
 
