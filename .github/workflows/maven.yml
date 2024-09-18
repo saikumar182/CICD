@@ -16,31 +16,51 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-
-      - name: Build & push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v4
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          image: saikumar781/springbootcicd
-          tags: latest
-          registry: docker.io
-          dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
 
+      - name:
+        run: |
+            "cd ~/springbootcicd/ && \
+            docker stop springbootcicd && \
+            docker rm springbootcicd && \
+            docker rmi springbootcicd:latest && \
+#            docker stop \$(docker ps -a -q) && \
+            git checkout master && \
+            git pull && \
+            docker build -t springbootcicd:latest -f Dockerfile. && \
+            docker run -p 8080:8080 -d --name springbootcicd springbootcicd:latest && \
+          docker start \$(docker ps -a -q)"
+        
+
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#          cache: maven
+#      - name: Build with Maven
+#        run: mvn clean install
 
 
+#      - name: Build & push Docker image
+#        uses: mr-smithers-excellent/docker-build-push@v4
+#        with:
+#          image: saikumar781/springbootcicd
+#          tags: latest
+#          registry: docker.io
+#          dockerfile: Dockerfile
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}

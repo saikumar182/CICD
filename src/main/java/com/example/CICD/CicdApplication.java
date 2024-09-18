@@ -15,9 +15,9 @@ public class CicdApplication {
 		return " ci cd with github actions";
 	}
 
-    @GetMapping("/status")
+    @GetMapping
 	public String status(){
-		return "active";
+		return "actvie";
 	}
 
 
