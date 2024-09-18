@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: springboot ci/cd with maven
+name: Spring Boot CI/CD with Maven
 
 on:
   push:
@@ -15,33 +15,42 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Set up Maven
+        uses: actions/setup-maven@v2
+
+      - name: Set up Docker
+        uses: actions/setup-docker@v2
 
       - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.5.3
+        uses: webfactory/ssh-agent@v0.5.4
         with:
+          ssh-private-key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-
-      - name:
+      - name: Build and package
         run: |
-            "cd ~/springbootcicd/ && \
-            docker stop springbootcicd && \
-            docker rm springbootcicd && \
-            docker rmi springbootcicd:latest && \
-#            docker stop \$(docker ps -a -q) && \
-            git checkout master && \
-            git pull && \
-            docker build -t springbootcicd:latest -f Dockerfile. && \
-            docker run -p 8080:8080 -d --name springbootcicd springbootcicd:latest && \
-          docker start \$(docker ps -a -q)"
-        
+          mvn clean package
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/springbootcicd:latest .
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicd:latest
+
+      - name: Deploy to Docker
+        run: |
+          docker stop springbootcicd || true
+          docker rm springbootcicd || true
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/springbootcicd:latest || true
+          docker run -p 8080:8080 -d --name springbootcicd ${{ secrets.DOCKER_USERNAME }}/springbootcicd:latest
 
 #    steps:
 #      - uses: actions/checkout@v4
