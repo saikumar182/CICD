@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CicdApplication {
 
 
-	@GetMapping("/hello")
+	@GetMapping("/hello/man")
 	public String checking(){
 		return " ci cd with github actions";
 	}
@@ -20,23 +20,10 @@ public class CicdApplication {
 		return "actvie";
 	}
 
-
-	@GetMapping
-	public String chache(){
-		return "hello!world";
-	}
-
-
-
 	@GetMapping("/check")
 	public String verify(){
 		return "hello world";
 	}
-
-
-
-
-
 
 	public static void main(String[] args) {
 		SpringApplication.run(CicdApplication.class, args);
