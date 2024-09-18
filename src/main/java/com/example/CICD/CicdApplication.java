@@ -20,6 +20,12 @@ public class CicdApplication {
 		return "actvie";
 	}
 
+	@GetMapping
+	public String health(){
+		return "healthy!";
+	}
+
+
 	@GetMapping("/check")
 	public String verify(){
 		return "hello world";
