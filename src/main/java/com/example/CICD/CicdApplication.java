@@ -21,6 +21,12 @@ public class CicdApplication {
 	}
 
 
+	@GetMapping
+	public String chache(){
+		return "hello!world";
+	}
+
+
 
 	@GetMapping("/check")
 	public String verify(){
